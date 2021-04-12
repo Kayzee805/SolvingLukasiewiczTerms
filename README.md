@@ -24,15 +24,15 @@ As shown in the Evaluation class, a muTerm *e=* μx.(x ⊓ ν y.(x ⊔ y)) can b
 ```java
 muTerm term=new muTerm("mu",
                        new muTerm("cap",
-						new muTerm("var",null,null,"x",""),
-						new muTerm("v",
-							new muTerm("cup",
-                                    new muTerm("var",null,null,"x","")
-								,new muTerm("var",null,null,"y","")
-                              ,"","")
-                          ,null,"y","")
-                       ,"","")
-           ,null,"x","");
+				new muTerm("var",null,null,"x",""),
+				new muTerm("v",
+					new muTerm("cup",
+                                    		new muTerm("var",null,null,"x","")
+						,new muTerm("var",null,null,"y","")
+                              		,"","")
+                          	,null,"y","")
+			,"","")
+           	,null,"x","");
 ```
 
  
