@@ -4,14 +4,14 @@ package solvingMuCalculus;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Hashtable;
 import java.util.List;
 
 public class Evaluation {
 	Evaluation(){};
 
-	public HashMap<ArrayList<String>,ArrayList<ArrayList<Double>>>  generateCandidateSolutions(muTerm x){
+	public LinkedHashMap<ArrayList<String>,ArrayList<ArrayList<Double>>>  generateCandidateSolutions(muTerm x){
 		ArrayList<ArrayList<Double>> candidateSolutions = new ArrayList<ArrayList<Double>>();
 		muTerm singleSequence = x.generateSequenceEquation(x, true, x.variableSet.size());
 		
@@ -20,7 +20,7 @@ public class Evaluation {
 			x.seqeunceOfEquations.put(x.singleQuantifier,singleSequence);
 		}
 		
-		HashMap<String, muTerm> sequenceOfEquations = x.seqeunceOfEquations;
+		LinkedHashMap<String, muTerm> sequenceOfEquations = x.seqeunceOfEquations;
 		//System.out.println("Sequence length ="+sequenceOfEquations.size());
 		
 		
@@ -28,12 +28,15 @@ public class Evaluation {
 		ArrayList<String> quantifierNames = new ArrayList<String>();
 		//adding the translated terms into arraylist
 		//one for each sequence
+//		for(String key:sequenceOfEquations.keySet()) {
+//			System.out.println("Sequence: "+key+"="+x.toString(sequenceOfEquations.get(key)));
+//		}
 		for(String key:sequenceOfEquations.keySet()) {
 			String[] values = new String[x.variableSet.size()+1];
 			Arrays.fill(values, "0");
 			values = x.translateTerms(sequenceOfEquations.get(key), values,x.tTracker);
 			translatedEquations.add(values);
-			//System.out.println("trans:: = "+key+"  "+x.toString(sequenceOfEquations.get(key)));
+		//	System.out.println("Translated:: = "+key+"  "+x.toString(sequenceOfEquations.get(key)));
 			quantifierNames.add(key);
 		}
 		ArrayList<String[]>leqList = x.getLEQ();
@@ -43,7 +46,7 @@ public class Evaluation {
 //		for(String[] a:leqList) {
 //			System.out.println("LEQ :"+Arrays.toString(a));
 //		}
-		
+//		
 		//generates all permutation of T for m operators
 		int[] emptyArrayforT = new int[x.opCounter];
 		variableT tClass = new variableT();
@@ -68,7 +71,8 @@ public class Evaluation {
 				double[] readyForGauss = x.solveForQuantifiers(subbedTvalues,quantifierNames.get(i));
 				matrix[i]=readyForGauss;
 			}
-			
+		//	System.out.println("\n");
+
 //			for(int l=0;l<matrix.length;l++) {
 //				System.out.println("Matrix == "+Arrays.toString(matrix[l]));
 //			}
@@ -99,7 +103,7 @@ public class Evaluation {
 						//System.out.println("Adding to solution "+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT));
 					}
 					else {
-					//	System.err.println("Solution already in candidateSolutions");
+						//System.err.println("Solution already in candidateSolutions");
 					}
 				}
 				else {
@@ -124,7 +128,7 @@ public class Evaluation {
 			}
 			
 		}
-		HashMap<ArrayList<String>,ArrayList<ArrayList<Double>>> returnResult = new HashMap<ArrayList<String>,ArrayList<ArrayList<Double>>>();
+		LinkedHashMap<ArrayList<String>,ArrayList<ArrayList<Double>>> returnResult = new LinkedHashMap<ArrayList<String>,ArrayList<ArrayList<Double>>>();
 		returnResult.put(dummyVarList,candidateSolutions);
 		
 	//	for some reason order isnt mainted in quantifier names
@@ -147,7 +151,7 @@ public class Evaluation {
 		ArrayList<Long> times = new ArrayList<Long>();
 		//first take step
 		long start = System.nanoTime();
-		HashMap<ArrayList<String>,ArrayList<ArrayList<Double>>> quantifierAndSoltuion = generateCandidateSolutions(x);
+		LinkedHashMap<ArrayList<String>,ArrayList<ArrayList<Double>>> quantifierAndSoltuion = generateCandidateSolutions(x);
 		//now evaluate?
 		long end1 = System.nanoTime();
 		
@@ -186,7 +190,6 @@ public class Evaluation {
 // 		if(uniqueSolution.size()!=0) {
 // 			times.add(1l);
 // 		}
- 	//	System.out.println("\nFinal sol ="+ Arrays.toString(uniqueSolution.toArray()));
  		//System.out.println("Time taken = "+timeTaken);
 
  		
@@ -207,9 +210,12 @@ public class Evaluation {
  		//adding the heuristic size and the candidate solution size
  		times.add((long) heuristicSolution.size());
  		times.add((long)candidateSolutions.size());
-
+ 		System.out.println("\nCnadidate solution = "+candidateSolutions.size());
+ 		
+ 		for(int c = 0;c<candidateSolutions.size();c++) {
+ 			System.out.println("Candidate Solution "+c+" ="+Arrays.toString(candidateSolutions.get(c).toArray()));
+ 		}
  	//	System.out.println("Heuristic size = "+heuristicSolution.size());
- 	//	System.out.println("Cnadidate solution = "+candidateSolutions.size());
  		
  		
  		
@@ -218,49 +224,51 @@ public class Evaluation {
  		times.add(end1-start);
  		//ArrayList<Double> heuristicSolution = EvaluateAlgorithm.heuristicAlgorithm(candidateSolutions, quantifierNames);
 	//	System.out.println("Heuristic sol = "+Arrays.toString(heuristicSolution.toArray()));
+ 		System.out.println("\nFinal sol ="+ Arrays.toString(uniqueSolution.toArray()));
 
-// 		for(ArrayList<Double> sol:heuristicSolution) {
-// 			System.out.println("Heuristic sol = "+Arrays.toString(sol.toArray()));
-// 		}
-// 		
+ 		int heuristicCounter=0;
+ 		for(ArrayList<Double> sol:heuristicSolution) {
+ 			System.out.println("Heuristic solution "+heuristicCounter+"= "+Arrays.toString(sol.toArray()));
+ 		}
+ 		
  		return times;
  		
 	}
-//	public static void main(String[] args) {
-//		//main example from paper
-//		muTerm test1= new muTerm("mu",new muTerm("cup",new muTerm("v",
-//				new muTerm(".",new muTerm("var",null,null,"y",""),
-//						new muTerm("+",new muTerm("var",null,null,"x",""),
-//								new muTerm("q",null,null,"","0.5"),"",""),"","")
-//				,null,"y","")
-//				,new muTerm("q",null,null,"","0.5"),"","")
-//				,null,"x","");
+	public static void main(String[] args) {
+		//main example from paper
+		muTerm test= new muTerm("mu",new muTerm("cup",new muTerm("v",
+				new muTerm(".",new muTerm("var",null,null,"y",""),
+						new muTerm("+",new muTerm("var",null,null,"x",""),
+								new muTerm("q",null,null,"","0.5"),"",""),"","")
+				,null,"y","")
+				,new muTerm("q",null,null,"","0.5"),"","")
+				,null,"x","");
+		
+		
+		muTerm test1=new muTerm("mu",new muTerm("cup",
+				new muTerm("var",null,null,"x",""),
+				new muTerm("v",
+						new muTerm("cap",new muTerm("var",null,null,"x","1")
+								,new muTerm("var",null,null,"y",""),"",""),null,"y",""),"",""),null,"x","");
+		//System.out.println(x.toString(x));
+
+		
+		
+//		muTerm test = new muTerm("mu",new muTerm("cap",new muTerm("q",null,null,"","0.460243"),
+//				new muTerm("cup",new muTerm("var",null,null,"b",""),new muTerm("",null,null,"",""),"",""),"",""),null,"b","");
+////		ArrayList<ArrayList<Double>> candidateSolutions = Evaluation.generateCandidateSolutions(x);
 //		
-//		
-//		muTerm test=new muTerm("mu",new muTerm("cup",
-//				new muTerm("var",null,null,"x",""),
-//				new muTerm("v",
-//						new muTerm("cap",new muTerm("var",null,null,"x","1")
-//								,new muTerm("var",null,null,"y",""),"",""),null,"y",""),"",""),null,"x","");
-//		//System.out.println(x.toString(x));
-//
-//		
-//		
-////		muTerm test = new muTerm("mu",new muTerm("cap",new muTerm("q",null,null,"","0.460243"),
-////				new muTerm("cup",new muTerm("var",null,null,"b",""),new muTerm("",null,null,"",""),"",""),"",""),null,"b","");
-//////		ArrayList<ArrayList<Double>> candidateSolutions = Evaluation.generateCandidateSolutions(x);
-////		
-//// 		for(int i=0;i<candidateSolutions.size();i++) {
-//// 			System.out.println("Candidate Solution "+i+" = "+Arrays.toString(candidateSolutions.get(i).toArray()));
-//// 		}
-//		Evaluation e = new Evaluation();
-//		//muTerm test = muTermGenerator.generateMuTerms(2,1,3,10000000);
-//		System.out.println(test.toString(test));
-//
-//		ArrayList<Long>times =e.evaluate(test);
-// 		
-//		System.out.println("Time taken +"+Arrays.toString(times.toArray()));
-// 		//now the evalaution part?
-// 		
-//	}
+// 		for(int i=0;i<candidateSolutions.size();i++) {
+// 			System.out.println("Candidate Solution "+i+" = "+Arrays.toString(candidateSolutions.get(i).toArray()));
+// 		}
+		Evaluation e = new Evaluation();
+		//muTerm test = muTermGenerator.generateMuTerms(2,1,3,10000000);
+		System.out.println(test.toString(test));
+
+		ArrayList<Long>times =e.evaluate(test);
+ 		
+		System.out.println("Time taken +"+Arrays.toString(times.toArray()));
+ 		//now the evalaution part?
+ 		
+	}
 }

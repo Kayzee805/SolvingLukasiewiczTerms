@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 public class muTerm implements Serializable {
@@ -32,7 +32,7 @@ public class muTerm implements Serializable {
 	HashSet<String> variableSet = new HashSet<String>();	
 	 
 	//will contain varName as key and variable value as the value
-	HashMap<String, String> variableValues = new HashMap<String,String>();
+	LinkedHashMap<String, String> variableValues = new LinkedHashMap<String,String>();
 	
 	//will contain the values for the free variables, if any
 	ArrayList<String> freeValues = new ArrayList<String>();
@@ -247,7 +247,7 @@ public class muTerm implements Serializable {
 	 * else we return the subterm of the quantifier
 	 */
 	String singleQuantifier="";
-	HashMap<String,muTerm> seqeunceOfEquations= new HashMap<String,muTerm>();
+	LinkedHashMap<String,muTerm> seqeunceOfEquations= new LinkedHashMap<String,muTerm>();
 	public muTerm generateSequenceEquation(muTerm x, boolean start, int varLength) {
 	//	System.err.println("Im here "+x.op);
 
@@ -278,6 +278,7 @@ public class muTerm implements Serializable {
 			}
 			if(start) {
 				//So the first time a quantifier is appearing
+				seqeunceOfEquations.put(type+"."+x.variableName, null);
 				muTerm e1 = generateSequenceEquation(x.subEx1,false,varLength);
 				seqeunceOfEquations.put(type+"."+x.variableName, e1);
 				return x;
@@ -285,6 +286,7 @@ public class muTerm implements Serializable {
 			else {
 				//quantifier appeared before so we return the variable name
 				//whilst generating the sequence in the subterm, if any
+				seqeunceOfEquations.put(type+"."+x.variableName, null);
 				muTerm e1 = generateSequenceEquation(x.subEx1,false,varLength);
 				seqeunceOfEquations.put(type+"."+x.variableName,e1);
 				return new muTerm("var",null,null,x.variableName,"");
@@ -340,7 +342,7 @@ public class muTerm implements Serializable {
 	
 		}
 	
-	public HashMap<String, muTerm> getseqeunceOfEquations(){
+	public LinkedHashMap<String, muTerm> getseqeunceOfEquations(){
 		return seqeunceOfEquations;
 	}
 	
@@ -516,7 +518,13 @@ public class muTerm implements Serializable {
 				//so I just put the number in
 				//System.err.println("Trans::q   before =="+Arrays.toString(values));
 				String temp = values[values.length-1];
-				values[values.length-1] = temp+"*"+x.value;
+				if(temp.equals("0")) {
+					values[values.length-1] = "1*"+x.value;
+				}
+				else {
+					values[values.length-1] = temp+"*"+x.value;
+
+				}
 				//System.err.println("Trans::q   After =="+Arrays.toString(values));
 				return values;
 			}
@@ -537,6 +545,7 @@ public class muTerm implements Serializable {
 			
 		}
 		System.err.println("Error:muTerm::translateTerms");
+	
 		return null;
 	}
 	
@@ -663,7 +672,7 @@ public class muTerm implements Serializable {
 		double[] result = new double[equations.length];
 		
 		String[] equationCopy = equations;
-	//	System.err.println("Befpre "+Arrays.toString(equationCopy)+"  "+Arrays.toString(tValues));
+	//	System.err.println("\nBefore "+Arrays.toString(equationCopy)+"  "+Arrays.toString(tValues));
 
 	//	System.out.println("t length = "+tValues.length);
 		for(int i=0;i<tValues.length;i++) {
@@ -678,11 +687,13 @@ public class muTerm implements Serializable {
 		//subbed in values for all t 
 		//now solve the equation, which will return a solved array
 		//double solved=0.0;
-	//	System.err.println("ERROR "+Arrays.toString(equationCopy)+"  "+Arrays.toString(tValues));
+		//System.err.println("ERROR "+Arrays.toString(equationCopy)+"  "+Arrays.toString(tValues));
 		for(int i=0;i<equationCopy.length;i++) {
 		//	System.err.println("Trying for "+equationCopy[i]);
 			result[i] = Double.parseDouble(EquationSolver.solve(equationCopy[i]));
 		}
+		//System.out.println("Subsituted = "+Arrays.toString(result));
+
 		return result;
 		
 		}
