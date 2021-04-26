@@ -26,8 +26,8 @@ public class muTermGenerator {
 		ArrayList<muTerm> subterms = new ArrayList<muTerm>();
 		int varNumber = muNumber+nuNumber;
 		int randSeed = random.nextInt();
-		//random.setSeed(1378570435);
-		random.setSeed(randSeed);
+		random.setSeed(1541735597);
+	//	random.setSeed(randSeed);
 
 		System.out.println("Random seed = "+randSeed);
 		muTerm term = new muTerm("q",null,null,"","0.5");
