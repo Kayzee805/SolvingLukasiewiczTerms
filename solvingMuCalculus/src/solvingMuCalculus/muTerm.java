@@ -802,8 +802,6 @@ public class muTerm implements Serializable {
 					}
 					
 				}
-				System.err.println("HELP GETTING HERE "+Arrays.toString(rhs)+"  sub="+sub);
-				// so if var has a value, but others has value as well
 				rhs[index]--;
 				rhs[length-1] *=-1;
 				return rhs;
@@ -815,19 +813,22 @@ public class muTerm implements Serializable {
 				//need to check for all 0, constant has val but rest =0
 				//if var = 1 and rest =0
 				boolean isOne = (rhs[index]==1)?true:false;
-				
+
 				if(sub) {
 					//[x=1.y=0,c=0] which means, y=x
+
 					rhs[index]--;
 					rhs[length-1]*=-1;
 					return rhs;
 				}
 				else {
+
 					//all 0
 					if(isOne && rhs[length-1]==0) {
 						//as its gfp. y=y, will give y=1
 						rhs[index]=-1;
 						rhs[rhs.length-1]=-1;
+
 						return rhs;
 					}
 					else if(isOne && rhs[length-1]!=0) {
@@ -835,6 +836,7 @@ public class muTerm implements Serializable {
 						//which is not a gfp nor a fixed point
 						rhs[index]=0;
 						rhs[length-1] *=-1;
+
 						return rhs;
 					}
 					else if(!isOne && rhs[length-1]!=0) {
@@ -842,9 +844,11 @@ public class muTerm implements Serializable {
 						//e.g. nu.y = 0.5
 						rhs[length-1]*= 1;
 						rhs[index]=1;
+
 						return rhs;
 					}
 					else if(!isOne && rhs[length-1]==0) {
+
 						//e.g. nu.y = 0
 						rhs[index]=1;
 						return rhs;

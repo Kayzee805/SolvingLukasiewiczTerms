@@ -28,24 +28,31 @@ public class Evaluation {
 		ArrayList<String> quantifierNames = new ArrayList<String>();
 		//adding the translated terms into arraylist
 		//one for each sequence
-//		for(String key:sequenceOfEquations.keySet()) {
-//			System.out.println("Sequence: "+key+"="+x.toString(sequenceOfEquations.get(key)));
-//		}
+		System.out.println();
+
+		for(String key:sequenceOfEquations.keySet()) {
+			System.out.println("Equation:: "+key+"="+x.toString(sequenceOfEquations.get(key)));
+		}
+		System.out.println();
 		for(String key:sequenceOfEquations.keySet()) {
 			String[] values = new String[x.variableSet.size()+1];
 			Arrays.fill(values, "0");
 			values = x.translateTerms(sequenceOfEquations.get(key), values,x.tTracker);
 			translatedEquations.add(values);
-		//	System.out.println("Translated:: = "+key+"  "+x.toString(sequenceOfEquations.get(key)));
+			System.out.println("Translated equation:: = "+key+"  ="+x.toString(sequenceOfEquations.get(key))+" -> "+Arrays.toString(values));
 			quantifierNames.add(key);
 		}
 		ArrayList<String[]>leqList = x.getLEQ();
 		
 		
 		//printing leqlist
-//		for(String[] a:leqList) {
-//			System.out.println("LEQ :"+Arrays.toString(a));
-//		}
+		int leqCounter=0;
+		System.out.println();
+
+		for(String[] a:leqList) {
+			System.out.println("LEQ "+leqCounter+"="+Arrays.toString(a));
+			leqCounter++;
+		}
 //		
 		//generates all permutation of T for m operators
 		int[] emptyArrayforT = new int[x.opCounter];
@@ -54,6 +61,8 @@ public class Evaluation {
 		List<ArrayList<Integer>> allTpermutations =tClass.getPermutations(); 
 		
 		x.setToArray();
+		System.out.println("Generating candidate solutions now:\n");
+
 		for(ArrayList<Integer>tList:allTpermutations) {
 			//just putting it to an array, can probably use toArray
 			int[] currentT = new int[tList.size()];
@@ -62,20 +71,45 @@ public class Evaluation {
 			}
 			
 			double[][] matrix = new double[translatedEquations.size()][translatedEquations.get(0).length];
-			
+			boolean[] equationReduced = new boolean[translatedEquations.size()];
 			for(int i=0;i<translatedEquations.size();i++) {
-				//so original wont change
+				//so original array wont change
 				String[] translatedSeq = translatedEquations.get(i).clone();
-				//System.out.println("Trnasled seq = "+Arrays.toString(translatedSeq));
 				double[] subbedTvalues = x.solveforT(currentT, translatedSeq);
 				double[] readyForGauss = x.solveForQuantifiers(subbedTvalues,quantifierNames.get(i));
+				
+				if(readyForGauss[x.getIndexSet(quantifierNames.get(i).substring(3))]==0) {
+					equationReduced[i]=true;
+				}
+				else {
+					equationReduced[i]=false;
+				}
 				matrix[i]=readyForGauss;
-			}
-		//	System.out.println("\n");
+					
 
-//			for(int l=0;l<matrix.length;l++) {
-//				System.out.println("Matrix == "+Arrays.toString(matrix[l]));
-//			}
+			}
+			
+			for(int l =0;l<matrix.length;l++) {
+				if(equationReduced[l]) {
+					//been reduced
+					//check if there exists 1 in the matrix
+					int index = x.getIndexSet(quantifierNames.get(l).substring(3));
+					boolean allZero=true;
+					for(int z=0;z<matrix.length;z++) {
+						if(matrix[z][index]!=0) {
+							allZero=false;
+							break;
+						}
+					}
+					if(allZero) {
+						matrix[l][index]=1;
+					}
+				}
+			}
+			
+			for(int l=0;l<matrix.length;l++) {
+				System.out.println("Matrix == "+Arrays.toString(matrix[l]));
+			}
 //			
 			double[] solvedForGauss = GaussianElimination.solver(matrix);
 			
@@ -100,19 +134,19 @@ public class Evaluation {
 					}
 					if(!candidateSolutions.contains(candidate)) {
 						candidateSolutions.add(candidate);
-						//System.out.println("Adding to solution "+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT));
+						System.err.println("Adding to solution "+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT)+"\n");
 					}
 					else {
-						//System.err.println("Solution already in candidateSolutions");
+						System.err.println("Solution already in candidateSolutions at "+Arrays.toString(currentT)+"\n");
 					}
 				}
 				else {
-					//System.err.println("Inconsistent solution at ="+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT));
+					System.err.println("Inconsistent solution at ="+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT) +" with solutions= "+Arrays.toString(solvedForGauss)+"\n");
 					
 				}
 			}
 			else {
-				//System.err.println("Invalid solution at "+Arrays.toString(currentT) +" of "+Arrays.toString(solvedForGauss));
+				System.err.println("Invalid solution at "+Arrays.toString(currentT) +" of "+Arrays.toString(solvedForGauss)+"\n");
 			}
 			
 			
@@ -149,20 +183,17 @@ public class Evaluation {
 		 *then calculate the reduction from the heuristic>
 		 */
 		ArrayList<Long> times = new ArrayList<Long>();
-		//first take step
 		long start = System.nanoTime();
 		LinkedHashMap<ArrayList<String>,ArrayList<ArrayList<Double>>> quantifierAndSoltuion = generateCandidateSolutions(x);
 		//now evaluate?
 		long end1 = System.nanoTime();
 		
-	//	System.out.println("First step = "+(end1-start)/1000);
 		
 		ArrayList<ArrayList<Double>> candidateSolutions=null;
 		ArrayList<String> quantifierNames=null;
 		for(ArrayList<String> quantifiers:quantifierAndSoltuion.keySet()) {
 			quantifierNames=quantifiers;
 			candidateSolutions = quantifierAndSoltuion.get(quantifiers);
-		//	System.out.println("QUANTIFIERS ="+Arrays.toString(quantifiers.toArray()));
 		}
 		if(candidateSolutions.size()==0) {
 			//System.out.println("No candidate solutions");
@@ -207,29 +238,24 @@ public class Evaluation {
  		times.add(timeTakenH);
  		
  		
- 		//adding the heuristic size and the candidate solution size
  		times.add((long) heuristicSolution.size());
  		times.add((long)candidateSolutions.size());
- 		System.out.println("\nCnadidate solution = "+candidateSolutions.size());
+ 		System.err.println("\nPrinting solutions now:");
+ 		System.out.println("Cnadidate solution = "+candidateSolutions.size());
  		
  		for(int c = 0;c<candidateSolutions.size();c++) {
  			System.out.println("Candidate Solution "+c+" ="+Arrays.toString(candidateSolutions.get(c).toArray()));
  		}
- 	//	System.out.println("Heuristic size = "+heuristicSolution.size());
  		
- 		
- 		
- 		//System.out.println("Success?? "+times.get(2));
- 		//time taken to generate candidate solutions
  		times.add(end1-start);
- 		//ArrayList<Double> heuristicSolution = EvaluateAlgorithm.heuristicAlgorithm(candidateSolutions, quantifierNames);
-	//	System.out.println("Heuristic sol = "+Arrays.toString(heuristicSolution.toArray()));
- 		System.out.println("\nFinal sol ="+ Arrays.toString(uniqueSolution.toArray()));
+
+ 		System.out.println("\nUnique solution of recursive algorithm ="+ Arrays.toString(uniqueSolution.get(0).toArray()));
 
  		int heuristicCounter=0;
  		for(ArrayList<Double> sol:heuristicSolution) {
  			System.out.println("Heuristic solution "+heuristicCounter+"= "+Arrays.toString(sol.toArray()));
  		}
+ 		System.err.println("Number of candidate solutions reduced from "+candidateSolutions.size()+" -> "+heuristicSolution.size());
  		
  		return times;
  		
@@ -245,14 +271,18 @@ public class Evaluation {
 				,null,"x","");
 		
 		
-		muTerm test1=new muTerm("mu",new muTerm("cup",
+		muTerm test11=new muTerm("mu",new muTerm("cup",
 				new muTerm("var",null,null,"x",""),
 				new muTerm("v",
 						new muTerm("cap",new muTerm("var",null,null,"x","1")
 								,new muTerm("var",null,null,"y",""),"",""),null,"y",""),"",""),null,"x","");
-		//System.out.println(x.toString(x));
 
-		
+		muTerm test2=new muTerm("mu",new muTerm("cap",
+				new muTerm("var",null,null,"x",""),
+				new muTerm("v",
+						new muTerm("cup",new muTerm("var",null,null,"x","1")
+								,new muTerm("var",null,null,"y",""),"",""),null,"y",""),"",""),null,"x","");
+
 		
 //		muTerm test = new muTerm("mu",new muTerm("cap",new muTerm("q",null,null,"","0.460243"),
 //				new muTerm("cup",new muTerm("var",null,null,"b",""),new muTerm("",null,null,"",""),"",""),"",""),null,"b","");
