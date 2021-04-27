@@ -6,7 +6,7 @@ public class DemoExamples {
 	
 	public static void main(String[] args) {
 		
-		int chooseExample =0;
+		int chooseExample =3;
 		muTerm exampleTerm;
 		//main examples from paper
 
