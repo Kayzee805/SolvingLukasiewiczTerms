@@ -134,19 +134,19 @@ public class Evaluation {
 					}
 					if(!candidateSolutions.contains(candidate)) {
 						candidateSolutions.add(candidate);
-						System.err.println("Adding to solution "+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT)+"\n");
+						System.err.println("Adding to solution "+Arrays.toString(solvedForGauss)+" at t="+Arrays.toString(currentT)+"\n");
 					}
 					else {
-						System.err.println("Solution already in candidateSolutions at "+Arrays.toString(currentT)+"\n");
+						System.err.println("Solution already in candidateSolutions at t="+Arrays.toString(currentT)+"\n");
 					}
 				}
 				else {
-					System.err.println("Inconsistent solution at ="+Arrays.toString(solvedForGauss)+" at "+Arrays.toString(currentT) +" with solutions= "+Arrays.toString(solvedForGauss)+"\n");
+					System.err.println("Inconsistent solution  "+Arrays.toString(solvedForGauss)+" at t="+Arrays.toString(currentT)+"\n");
 					
 				}
 			}
 			else {
-				System.err.println("Invalid solution at "+Arrays.toString(currentT) +" of "+Arrays.toString(solvedForGauss)+"\n");
+				System.err.println("Invalid solution of "+Arrays.toString(solvedForGauss)+"at t="+Arrays.toString(currentT) +"\n");
 			}
 			
 			
@@ -196,7 +196,7 @@ public class Evaluation {
 			candidateSolutions = quantifierAndSoltuion.get(quantifiers);
 		}
 		if(candidateSolutions.size()==0) {
-			//System.out.println("No candidate solutions");
+			System.err.println("Term is not well formed and has no candidate solutions");
 			times.add(0l);
 			times.add(0l);
 			times.add(0l);
@@ -291,7 +291,7 @@ public class Evaluation {
 
 		Evaluation e = new Evaluation();
 	//	muTerm test = muTermGenerator.generateMuTerms(1,1,3,10);
-		System.out.println(test.toString(test));
+		System.out.println(e+" = "+test.toString(test));
 
 		ArrayList<Long>times =e.evaluate(test);
  		

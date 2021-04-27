@@ -6,7 +6,7 @@ public class DemoExamples {
 	
 	public static void main(String[] args) {
 		
-		int chooseExample = 1;
+		int chooseExample =0;
 		muTerm exampleTerm;
 		//main examples from paper
 
@@ -27,7 +27,7 @@ public class DemoExamples {
 							new muTerm("cap",new muTerm("var",null,null,"x","1")
 									,new muTerm("var",null,null,"y",""),"",""),null,"y",""),"",""),null,"x","");
 		}
-		else {
+		else if(chooseExample==2){
 
 			exampleTerm=new muTerm("mu",new muTerm("cap",
 					new muTerm("var",null,null,"x",""),
@@ -37,17 +37,20 @@ public class DemoExamples {
 
 			
 		}
+		else {
+			exampleTerm = muTermGenerator.generateMuTerms(2,2,5,10);
+
+		}
 
 		
 
 
 
 		Evaluation e = new Evaluation();
-		//muTerm exampleTerm = muTermGenerator.generateMuTerms(1,1,3,10);
-		System.out.println(exampleTerm.toString(exampleTerm));
+	 	System.out.println("e = "+exampleTerm.toString(exampleTerm));
 
 		ArrayList<Long>times =e.evaluate(exampleTerm);
- 		
+
 	//	System.out.println("Time taken ="+Arrays.toString(times.toArray()));
 
 	}
